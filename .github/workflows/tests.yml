@@ -1,0 +1,38 @@
+name: Run unit tests
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    pull-requests: read
+    issues: write
+    checks: write
+
+jobs:
+    run-unit-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out Git repository
+              uses: actions/checkout@v3
+              timeout-minutes: 6
+
+            - name: Get repository name
+              id: repo-name
+              uses: MariachiBear/get-repo-name-action@v1.1.0
+              with:
+                  string-case: "lowercase"
+
+            - name: Run Sanity Check tests
+              uses: speechify-recruiting/swiftui-test-action@main
+              id: swiftui-test-action
+              with:
+                  source-dir: "Shared"
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  REPO_NAME: ${{ steps.repo-name.outputs.repository-name }}
+              timeout-minutes: 5
